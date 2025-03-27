@@ -1,75 +1,48 @@
-const { Samsung, APPS, KEYS } = require('../lib/index')
-
-/*
-Typescript Example for Dinamic Keys
-import { $enum } from 'ts-enum-util'
-*/
+const { Samsung, APPS, KEYS } = require('../lib/index');
 
 const config = {
-  debug: true, // Default: false
-  ip: '192.168.1.2',
-  mac: '123456789ABC',
-  nameApp: 'NodeJS-Test', // Default: NodeJS
-  port: 8002, // Default: 8002
-  token: '12345678',
+  debug: true,
+  ip: '192.168.178.39',
+  mac: '54:3A:D6:55:65:A8',
+  name: '[TV] Q60',
+  token: '15454709',
+  saveToken: false
+};
+
+const control = new Samsung(config);
+
+// A simple sleep function to wait for the specified number of milliseconds.
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const control = new Samsung(config)
+async function main() {
+  await control.isAvailable();
+  //let token = await control.getTokenPromise()
+  //console.log('$$ token:', token);
 
-control.turnOn()
-control
-  .isAvailable()
-  .then(() => {
-    // Get token for API
-    control.getToken((token) => {
-      console.info('# Response getToken:', token)
-    })
+  // Define an array of keys you want to test.
+  const keysToTest = [
+    KEYS.KEY_HOME,
+    KEYS.KEY_LEFT,
+    KEYS.KEY_RIGHT,
+    KEYS.KEY_UP,
+    KEYS.KEY_DOWN,
+    KEYS.KEY_HDMI,
+  ];
 
-    /*
-      Typescript Example for Dinamic Keys
-      const KeyTypes = $enum(KEYS).getValues()
+  // Loop through the keys, sending one, waiting a second, then sending the next.
+  for (const key of keysToTest) {
+    console.log(`Sending ${key}...`);
+    try {
+      await control.sendKeyPromise(key);
+      console.log(`Sent ${key}`);
+    } catch (err) {
+      console.error(`Error sending ${key}:`, err);
+    }
+    // Wait for 1 second before sending the next key.
+    await sleep(1000);
+  }
+}
 
-      const getEnumValue = (key: any) => {
-        return KeyTypes[key]
-      }
-    */
-
-    // Send key to TV
-    control.sendKey(KEYS.KEY_HOME, function (err, res) {
-      if (!err) {
-        console.log('# Response sendKey', res)
-      }
-    })
-
-    // Send text to focused input on TV
-    control.sendText('Text to be inserted in some focused input', function (err, res) {
-      if (!err) {
-        console.log('# Response sendText', res)
-      }
-    })
-
-    // Get all installed apps from TV
-    control.getAppsFromTV((err, res) => {
-      if (!err) {
-        console.log('# Response getAppsFromTV', res)
-      }
-    })
-
-    // Get app icon by iconPath which you can get from getAppsFromTV
-    control.getAppIcon(
-      `/opt/share/webappservice/apps_icon/FirstScreen/${APPS.YouTube}/250x250.png`,
-      (err, res) => {
-        if (!err) {
-          console.log('# Response getAppIcon', res)
-        }
-      },
-    )
-
-    // Open app by appId which you can get from getAppsFromTV
-    control.openApp(APPS.YouTube, (err, res) => {
-      if (!err) {
-        console.log('# Response openApp', res)
-      }
-    })
-  })
-  .catch((e) => console.error(e))
+main();

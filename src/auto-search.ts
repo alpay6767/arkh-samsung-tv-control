@@ -59,11 +59,11 @@ class AutoSearch {
   }
 
   public search(time: number) {
-    return new Promise<TV[]>((resolve, reject) => {
+   /* return new Promise<TV[]>((resolve, reject) => {
       this.client.search('ssdp:all')
 
       setTimeout(this.stopSearch.bind(this, resolve, reject), time || 15000)
-    })
+    })*/
   }
 
   public deviceUpdate(headers: SsdpHeaders, _: number, rinfo: dgram.RemoteInfo) {
